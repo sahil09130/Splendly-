@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy — Spendly{% endblock %}
+
+{% block head %}
+<style>
+    .legal-container { max-width: 720px; }
+    .legal-updated {
+        font-size: 0.8rem;
+        color: var(--ink-faint);
+        margin-top: 0.35rem;
+    }
+    .legal-card { text-align: left; }
+    .legal-section { margin-bottom: 1.75rem; }
+    .legal-section:last-child { margin-bottom: 0; }
+    .legal-section-title {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        color: var(--ink);
+        margin-bottom: 0.6rem;
+    }
+    .legal-section-body {
+        font-size: 0.9rem;
+        line-height: 1.7;
+        color: var(--ink-muted);
+    }
+    .legal-section-body p { margin-bottom: 0.75rem; }
+    .legal-section-body p:last-child { margin-bottom: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container legal-container">
+        <div class="auth-header">
+            <h1 class="auth-title">Privacy Policy</h1>
+            <p class="auth-subtitle">How Spendly handles your information.</p>
+            <p class="legal-updated">Last updated: July 31, 2026</p>
+        </div>
+
+        <div class="auth-card legal-card">
+            <div class="legal-section">
+                <h2 class="legal-section-title">1. Data We Collect</h2>
+                <div class="legal-section-body">
+                    <p>When you create a Spendly account, we collect basic account information such as your name and email address. As you use the Service, we also store the expense entries you log, including amounts, categories, dates, and descriptions.</p>
+                    <p>We may automatically collect limited technical information, such as browser type and access times, to help keep the Service secure and reliable.</p>
+                </div>
+            </div>
+
+            <div class="legal-section">
+                <h2 class="legal-section-title">2. How We Use Your Data</h2>
+                <div class="legal-section-body">
+                    <p>We use your data solely to operate and improve Spendly: authenticating your account, displaying your expenses back to you, and generating the summaries and breakdowns you see in the app.</p>
+                    <p>We do not use your financial data for advertising, and we do not sell your personal information to third parties.</p>
+                </div>
+            </div>
+
+            <div class="legal-section">
+                <h2 class="legal-section-title">3. Data Storage</h2>
+                <div class="legal-section-body">
+                    <p>Your account and expense data are stored in our database and retained for as long as your account remains active. We apply reasonable technical and organizational measures to protect your data against unauthorized access, loss, or misuse.</p>
+                    <p>You may request deletion of your account and associated data at any time by contacting us.</p>
+                </div>
+            </div>
+
+            <div class="legal-section">
+                <h2 class="legal-section-title">4. Third-Party Services</h2>
+                <div class="legal-section-body">
+                    <p>Spendly may rely on third-party infrastructure providers (such as hosting and email delivery services) to operate the Service. These providers only process data as necessary to support Spendly and are not permitted to use it for their own purposes.</p>
+                    <p>Spendly does not share your expense data with advertisers, data brokers, or other third parties for marketing purposes.</p>
+                </div>
+            </div>
+
+            <div class="legal-section">
+                <h2 class="legal-section-title">5. Contact Us</h2>
+                <div class="legal-section-body">
+                    <p>If you have questions about this Privacy Policy or how your data is handled, or if you would like to request access to or deletion of your data, please reach out to us through the contact details provided in the app.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
