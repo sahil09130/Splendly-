@@ -62,19 +62,29 @@ def login():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
-        conn = get_db()
-        user = conn.execute(
-            "SELECT id, name, password_hash FROM users WHERE email = ?",
-            (email,)
-        ).fetchone()
-        conn.close()
+        error = None
 
-        if user and check_password_hash(user["password_hash"], password):
-            session["user_id"] = user["id"]
-            session["user_name"] = user["name"]
-            return redirect(url_for("profile"))
+        if not email or not password:
+            error = "Email and password are required"
 
-        return render_template("login.html", error="Invalid email or password")
+        if error is None:
+            conn = get_db()
+            try:
+                user = conn.execute(
+                    "SELECT id, name, password_hash FROM users WHERE email = ?",
+                    (email,)
+                ).fetchone()
+
+                if user and check_password_hash(user["password_hash"], password):
+                    session["user_id"] = user["id"]
+                    session["user_name"] = user["name"]
+                    return redirect(url_for("profile"))
+
+                error = "Invalid email or password"
+            finally:
+                conn.close()
+
+        return render_template("login.html", error=error, email=email)
 
     return render_template("login.html")
 
@@ -99,13 +109,25 @@ def logout():
     return redirect(url_for("landing"))
 
 
-@app.route("/profile")
+@app.route("/profile", methods=["GET"])
 def profile():
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    user_name = session.get("user_name", "User")
-    return f"<h1>Welcome, {user_name}!</h1><p>Profile page — coming in Step 4</p><a href='/logout'>Logout</a>"
+    conn = get_db()
+    try:
+        user = conn.execute(
+            "SELECT name, email, created_at FROM users WHERE id = ?",
+            (session["user_id"],)
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if user is None:
+        session.clear()
+        return redirect(url_for("login"))
+
+    return render_template("profile.html", user=user)
 
 
 @app.route("/expenses/add")

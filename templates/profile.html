@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendly{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+    <div class="auth-container">
+
+        <div class="auth-header">
+            <h1 class="auth-title">Your profile</h1>
+            <p class="auth-subtitle">Account information</p>
+        </div>
+
+        <div class="auth-card">
+            <div class="profile-info">
+                <div class="profile-field">
+                    <label class="profile-label">Name</label>
+                    <p class="profile-value">{{ user['name'] }}</p>
+                </div>
+                <div class="profile-field">
+                    <label class="profile-label">Email</label>
+                    <p class="profile-value">{{ user['email'] }}</p>
+                </div>
+                <div class="profile-field">
+                    <label class="profile-label">Joined</label>
+                    <p class="profile-value">{{ user['created_at'] }}</p>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a href="{{ url_for('logout') }}" class="btn-submit">Logout</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
