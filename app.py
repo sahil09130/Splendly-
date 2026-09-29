@@ -1,8 +1,11 @@
-from flask import Flask, render_template
+import sqlite3
+from flask import Flask, render_template, request, session, redirect, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from database.db import get_db, init_db, seed_db
 
 app = Flask(__name__)
+app.secret_key = "dev-secret-key-change-in-production"
 
 with app.app_context():
     init_db()
@@ -18,13 +21,61 @@ def landing():
     return render_template("landing.html")
 
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        error = None
+
+        if not name or not email or not password:
+            error = "All fields are required"
+        elif len(password) < 8:
+            error = "Password must be at least 8 characters"
+
+        if error is None:
+            conn = get_db()
+            try:
+                password_hash = generate_password_hash(password)
+                conn.execute(
+                    "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                    (name, email, password_hash)
+                )
+                conn.commit()
+                conn.close()
+                return redirect(url_for("login"))
+            except sqlite3.IntegrityError:
+                error = "Email already registered"
+            finally:
+                conn.close()
+
+        return render_template("register.html", error=error, name=name, email=email)
+
     return render_template("register.html")
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        conn = get_db()
+        user = conn.execute(
+            "SELECT id, name, password_hash FROM users WHERE email = ?",
+            (email,)
+        ).fetchone()
+        conn.close()
+
+        if user and check_password_hash(user["password_hash"], password):
+            session["user_id"] = user["id"]
+            session["user_name"] = user["name"]
+            return redirect(url_for("profile"))
+
+        return render_template("login.html", error="Invalid email or password")
+
     return render_template("login.html")
 
 
@@ -44,12 +95,17 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for("landing"))
 
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_name = session.get("user_name", "User")
+    return f"<h1>Welcome, {user_name}!</h1><p>Profile page — coming in Step 4</p><a href='/logout'>Logout</a>"
 
 
 @app.route("/expenses/add")
