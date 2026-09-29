@@ -1,5 +1,6 @@
+import sqlite3
 from flask import Flask, render_template, request, session, redirect, url_for
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from database.db import get_db, init_db, seed_db
 
@@ -23,31 +24,34 @@ def landing():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
 
-        conn = get_db()
         error = None
 
         if not name or not email or not password:
             error = "All fields are required"
+        elif len(password) < 8:
+            error = "Password must be at least 8 characters"
 
         if error is None:
+            conn = get_db()
             try:
-                from werkzeug.security import generate_password_hash
                 password_hash = generate_password_hash(password)
                 conn.execute(
                     "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
                     (name, email, password_hash)
                 )
                 conn.commit()
+                conn.close()
                 return redirect(url_for("login"))
-            except conn.IntegrityError:
+            except sqlite3.IntegrityError:
                 error = "Email already registered"
+            finally:
+                conn.close()
 
-        conn.close()
-        return render_template("register.html", error=error)
+        return render_template("register.html", error=error, name=name, email=email)
 
     return render_template("register.html")
 
@@ -55,8 +59,8 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
 
         conn = get_db()
         user = conn.execute(
